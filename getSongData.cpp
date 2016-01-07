@@ -3,12 +3,17 @@
 *	to the client, which processes it and displays the information to the user.
 */
 
-#include <iostream>
+/* Headers */
+#include <iostream> // cout
 
-int main()
+using namespace std;
+
+/*
+* Separates sections of an HTTP request
+*/
+void sepSecs()
 {
-	sendHeaders();	// Send the HTTP headers
-	testPage();	// Generate a test page
+	cout << "\r\n\r\n";
 }
 
 /*
@@ -29,10 +34,8 @@ void testPage()
 	sepSecs();	// End the content section
 }
 
-/*
-* Separates sections of an HTTP request
-*/
-void sepSecs()
+int main()
 {
-	cout << "\r\n\r\n";
+	sendHeaders();	// Send the HTTP headers
+	testPage();	// Generate a test page
 }
