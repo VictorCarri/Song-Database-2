@@ -19,6 +19,6 @@ int main(int argc, char* argv[])
 
 	catch (exception& e)
 	{
-	  cout << cgicc::HTTPHTMLHeader()
+	  cout << cgicc::HTTPHTMLHeader() << endl;
 	}
 }
