@@ -39,7 +39,7 @@ int main(int argc, char* argv[])
 	  
 	  /* CGI vars */
 	  cgicc::Cgicc cgi; // Cgicc object used for processing CGI stuff
-	  cgicc::CgiEnvironment env; // The environment of the HTTP request
+	  cgicc::CgiEnvironment env = cgi.getEnvironment(); // The environment of the HTTP request
 	  
 	  /* MySQL vars */
 	  sql::Driver *driver; // MySQL driver object
@@ -51,7 +51,7 @@ int main(int argc, char* argv[])
 	  std::string songName = env.getPostData(); // Get the data from the POST request.
 	  std::string songContentType = env.getContentType(); // Get the content type of the data in the POST request
 	  
-	  cout << "Received data of type \"" << songContentType << "\"" << endl << "Data follows" << endl << endl << songContentType << endl << endl;
+	  std::cout << "Received data of type \"" << songContentType << "\"" << std::endl << "Data follows" << std::endl << std::endl << songContentType << std::endl << std::endl;
 	  
 	  return EXIT_SUCCESS; // Indicate successful completion
 	}
