@@ -52,7 +52,13 @@ int main(int argc, char* argv[])
 	  std::cout << cgicc::HTTPHTMLHeader() << "<!DOCTYPE html>" << std::endl; // Print the Content-Type header, but use an HTML5 doctype, not an HTML4 one
 	  
 	  /* Start HTML */
-	  std::cout << cgicc::html().set("lang", "en") << cgicc::head(cgicc::title("CGI Test"))/* << cgicc::head() */<< cgicc::body(cgicc::div(ss.str()))/* << cgicc::body() */<< cgicc::html() << std::endl; // Prints some test HTML
+	  std::cout << cgicc::html().set("lang", "en") << cgicc::head(cgicc::title("CGI Test")) << cgicc::body() << cgicc::div(ss.str()); // Print some test HTML
+	  
+	  /** Test getting data from database **/
+	  
+	  
+	  /* End HTML */
+	  std::cout << cgicc::html() << std::endl; // End the HTML page
 	  
 	  return EXIT_SUCCESS; // Indicate successful completion
 	}
