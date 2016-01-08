@@ -3,39 +3,22 @@
 *	to the client, which processes it and displays the information to the user.
 */
 
-/* Headers */
+/* Standard Library Headers */
 #include <iostream> // cout
 
-using namespace std;
+/* cgicc headers */
+#include <cgicc/Cgicc.h> // Main Cgicc class
+#include <cgicc/HTTPHTMLHeader.h> // Class which generates HTTP headers
 
-/*
-* Separates sections of an HTTP request
-*/
-void sepSecs()
+int main(int argc, char* argv[])
 {
-	cout << "\r\n\r\n";
-}
+	try
+	{
+		cgicc::Cgicc cgi; // Cgicc object used for processing CGI stuff
+	{
 
-/*
-*	Sends the HTTP headers
-*/
-void sendHeaders()
-{
-	cout << "Content-Type: text/html";	// Content-Type header
-	sepSecs();	// End the header section
-}
-
-/*
-*	Generates a test page, to see if the program is working
-*/
-void testPage()
-{
-	cout << "<html><head><title>Test page</title></head><body>Can you see me?</body></html>"; // Send the test page data
-	sepSecs();	// End the content section
-}
-
-int main()
-{
-	sendHeaders();	// Send the HTTP headers
-	testPage();	// Generate a test page
+	catch (exception& e)
+	{
+	  cout << cgicc::HTTPHTMLHeader()
+	}
 }
