@@ -20,10 +20,13 @@
 #include "mysql_connection.h" // MySQL connection header
 
 /*/ MySQL C++ connector headers */
-#include <cppconn/driver.h> // MySQL driver
+#include <cppconn/driver.h> // MySQL driver class
 #include <cppconn/exception.h> // MySQL exceptions
-#include <cppconn/resultset.h> // MySQL result set classes
-#include <cppconn/statement.h> // MySQL statement object
+#include <cppconn/resultset.h> // MySQL result set class
+#include <cppconn/prepared_statement.h> // MySQL PreparedStatement class
+
+/* JSON headers */
+#include <json/json.h> // JSONCPP header
 
 /* C Headers */
 #include <cstdlib> // exit, EXIT_FAILURE, EXIT_SUCCESS
@@ -42,28 +45,59 @@ int main(int argc, char* argv[])
 	  cgicc::CgiEnvironment env = cgi.getEnvironment(); // The environment of the HTTP request
 	  
 	  /* MySQL vars */
-	  sql::Driver *driver; // MySQL driver object
-	  sql::Connection *conn; // MySQL connection object
-	  sql::Statement *stmt; // MySQL statement object;
-	  sql::ResultSet *res; // MySQL resultset object
+	  sql::Driver *pdriver; // Pointer to MySQL driver object
+	  sql::Connection *pconn; // Pointer to MySQL connection object
+	  sql::PreparedStatement *ppstmt; // Pointer to MySQL statement object;
+	  sql::ResultSet *pres; // Pointer to MySQL resultset object
+	  std::stringstream datprep; // The stringstream used to build the LIKE q's datauery
+	  std::stringstream resPrep; // The stringstream used to build a JSON result object
 	  
 	  /* POST request vars */
-	  std::string songName = env.getPostData(); // Get the data from the POST request.
 	  std::string songContentType = env.getContentType(); // Get the content type of the data in the POST request
+	  std::string songName = cgi("sname"); // Get the value of the song name parameter
 	  
-	  std::cout << "Received data of type \"" << songContentType << "\"" << std::endl << "Data follows" << std::endl << std::endl << songContentType << std::endl << std::endl;
+	  /** Query the database with the song name to get information about the song **/
+	  
+	  /* Create a connection */
+	  pdriver = get_driver_instance(); // Get an instance of a driver
+	  pconn = pdriver->connect("tcp://127.0.0.1:3306", "root", "1124mania"); // Connect to MySQL
+	  pconn->setSchema("personal"); // Select the personal database
+	  
+	  /* Create and execute the statement */
+	  ppstmt = pconn->prepareStatement("SELECT * FROM songs WHERE `Title` LIKE ?"); // Prepare the SELECT statement for SQL
+	  datprep << "%" << songName << "%"; // Set the string in datprep to the user's parameter enclosed by percent signs (global match with LIKE)
+	  ppstmt->setString(1, datprep.str()); // Add the user's input to the query
+	  pres = ppstmt->executeQuery(); // Execute the query and store a pointer to the results
+	  
+	  std::cout << "Content-Type: application/json\r\n\r\n"; // HTTP header, letting browser know that what follows is JSON
+	  
+	  while (pres->next()) // Loop through all of the results in the result set
+	  {
+	    std::cout << pres->getInt(1) << std::endl; // DEBUGGING: Print ID
+	  }
+	  
+	  /* Cleanup resources */
+	  delete pres; // Delete the result set
+	  delete ppstmt; // Delete the prepared statement
+	  delete pconn; // Free the connection
 	  
 	  return EXIT_SUCCESS; // Indicate successful completion
 	}
 	
 	catch (sql::SQLException& sqlError) // Catch any exceptions thrown by MySQL
 	{
-	  std::cout << "# ERR: SQLException in " << __FILE__;
-	  std::cout << "(" << __FUNCTION__ << ") on line »" 
+	  std::stringstream exss;
+	  
+	  /* Generate the error message */
+	  exss << "# ERR: SQLException in " << __FILE__;
+	  exss << "(" << __FUNCTION__ << ") on line »" 
 	   << __LINE__ << std::endl;
-	  std::cout << "# ERR: " << sqlError.what();
-	  std::cout << " (MySQL error code: " << sqlError.getErrorCode();
-	  std::cout << ", SQLState: " << sqlError.getSQLState() << " )" << std::endl;
+	  exss << "# ERR: " << sqlError.what();
+	  exss << " (MySQL error code: " << sqlError.getErrorCode();
+	  exss << ", SQLState: " << sqlError.getSQLState() << " )" << std::endl;
+	  
+	  /* Send the HTTP headers and the error message */
+	  std::cout << cgicc::HTTPHTMLHeader() << exss.str(); // Send the error message
 	}
 
 	catch (const std::exception& otherError) // Catch any exceptions thrown while processing the request
