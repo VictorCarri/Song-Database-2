@@ -28,6 +28,9 @@
 /* C Headers */
 #include <cstdlib> // exit, EXIT_FAILURE, EXIT_SUCCESS
 
+/**
+ * Main function of the program.
+ */
 int main(int argc, char* argv[])
 {
 	try
@@ -36,6 +39,7 @@ int main(int argc, char* argv[])
 	  
 	  /* CGI vars */
 	  cgicc::Cgicc cgi; // Cgicc object used for processing CGI stuff
+	  cgicc::CgiEnvironment env = cgi.getEnvironment(); // The environment of the HTTP request
 	  
 	  /* MySQL vars */
 	  sql::Driver *driver; // MySQL driver object
@@ -43,22 +47,11 @@ int main(int argc, char* argv[])
 	  sql::Statement *stmt; // MySQL statement object;
 	  sql::ResultSet *res; // MySQL resultset object
 	  
-	  /* Program vars*/
-	  std::stringstream ss; // Stringstream used to build div text
+	  /* POST request vars */
+	  std::string songName = env.getPostData(); // Get the data from the POST request.
+	  std::string songContentType = env.getContentType(); // Get the content type of the data in the POST request
 	  
-	  ss << "Hi, I'm " << __FILE__ << ", and I'm executing my " << __FUNCTION__ << " function now.";
-	  
-	  /* Print headers and doctype */
-	  std::cout << cgicc::HTTPHTMLHeader() << "<!DOCTYPE html>" << std::endl; // Print the Content-Type header, but use an HTML5 doctype, not an HTML4 one
-	  
-	  /* Start HTML */
-	  std::cout << cgicc::html().set("lang", "en") << cgicc::head(cgicc::title("CGI Test")) << cgicc::body() << cgicc::div(ss.str()); // Print some test HTML
-	  
-	  /** Test getting data from database **/
-	  
-	  
-	  /* End HTML */
-	  std::cout << cgicc::html() << std::endl; // End the HTML page
+	  std::cout << "Received data of type \"" << songContentType << "\"" << std::endl << "Data follows" << std::endl << std::endl << songContentType << std::endl << std::endl;
 	  
 	  return EXIT_SUCCESS; // Indicate successful completion
 	}
