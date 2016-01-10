@@ -3,6 +3,9 @@
 *	to the client, which processes it and displays the information to the user.
 */
 
+/** C Headers **/
+#include <cstdlib> // exit, EXIT_FAILURE, EXIT_SUCCESS
+
 /** C++ Headers **/
 
 /* C++ STL Headers */
@@ -13,7 +16,7 @@
 /* cgicc headers */
 #include <cgicc/CgiDefs.h> // Platform-and-system-specific def'ns
 #include <cgicc/Cgicc.h> // Main Cgicc class
-#include <cgicc/HTTPHTMLHeader.h> // Class which generates HTTP headers
+#include <cgicc/HTTPHTMLHeader.h> // Class which generates the HTTP header
 #include <cgicc/HTMLClasses.h> // Defines the HTML classes
 
 /* MySQL */
@@ -26,10 +29,8 @@
 #include <cppconn/prepared_statement.h> // MySQL PreparedStatement class
 
 /* JSON headers */
+#include <json/json-forwards.h> // Forward declarations for the JSON library
 #include <json/json.h> // JSONCPP header
-
-/* C Headers */
-#include <cstdlib> // exit, EXIT_FAILURE, EXIT_SUCCESS
 
 /**
  * Main function of the program.
@@ -43,6 +44,8 @@ int main(int argc, char* argv[])
 	  /* CGI vars */
 	  cgicc::Cgicc cgi; // Cgicc object used for processing CGI stuff
 	  cgicc::CgiEnvironment env = cgi.getEnvironment(); // The environment of the HTTP request
+	  std::string songContentType = env.getContentType(); // Get the content type of the data in the POST request
+	  std::string songName = cgi("sname"); // Get the value of the song name parameter
 	  
 	  /* MySQL vars */
 	  sql::Driver *pdriver; // Pointer to MySQL driver object
@@ -50,11 +53,11 @@ int main(int argc, char* argv[])
 	  sql::PreparedStatement *ppstmt; // Pointer to MySQL statement object;
 	  sql::ResultSet *pres; // Pointer to MySQL resultset object
 	  std::stringstream datprep; // The stringstream used to build the LIKE q's datauery
-	  std::stringstream resPrep; // The stringstream used to build a JSON result object
 	  
-	  /* POST request vars */
-	  std::string songContentType = env.getContentType(); // Get the content type of the data in the POST request
-	  std::string songName = cgi("sname"); // Get the value of the song name parameter
+	  /* JSON vars */
+	  Json::Value *resArr = new Json::Value(Json::arrayValue); // The JSON array object which will hold the JSON objects representing query results
+	  Json::Value *curObj; // Holds the object currently being created
+	  std::string ind; // Array index
 	  
 	  /** Query the database with the song name to get information about the song **/
 	  
@@ -72,11 +75,27 @@ int main(int argc, char* argv[])
 	  std::cout << "Content-Type: application/json\r\n\r\n"; // HTTP header, letting browser know that what follows is JSON
 	  
 	  while (pres->next()) // Loop through all of the results in the result set
-	  {
-	    std::cout << pres->getInt(1) << std::endl; // DEBUGGING: Print ID
+	  {  
+	    //std::cout << pres->getInt(1) << std::endl; // DEBUGGING: Print ID 
+	    
+	    /* Create the object representing the current row */
+	    curObj = new Json::Value(Json::objectValue); // Create a JSON object;
+	    curObj->append("test");
+	    
+	    /* Add the object to the JSON array */
+	    resArr->append(curObj);
 	  }
 	  
-	  /* Cleanup resources */
+	  /* Debugging: print array */
+	  std::cout << *resArr << "\r\n\r\n" << std::endl;
+	  
+	  /* Cleanup */
+	  for (int i = 0; i < resArr->size(); i++) // Loop through the vector
+	  {
+	    delete &resArr[i];
+	  }
+	  
+	  delete resArr; // Delete the results array
 	  delete pres; // Delete the result set
 	  delete ppstmt; // Delete the prepared statement
 	  delete pconn; // Free the connection
