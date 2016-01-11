@@ -52,7 +52,7 @@ int main(int argc, char* argv[])
 	  sql::Connection *pconn; // Pointer to MySQL connection object
 	  sql::PreparedStatement *ppstmt; // Pointer to MySQL statement object;
 	  sql::ResultSet *pres; // Pointer to MySQL resultset object
-	  std::stringstream datprep; // The stringstream used to build the LIKE q's datauery
+	  std::stringstream datprep; // The stringstream used to build the LIKE query's data
 	  
 	  /* JSON vars */
 	  Json::Value resArr(Json::arrayValue); // The JSON array object which will hold the JSON objects representing query results
