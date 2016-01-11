@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>CGI Test</title>
+		<script type="application/javascript" src="jquery-2.1.4.min.js"></script> <!-- jQuery -->
+		<script type="application/javascript">
+			/**
+			*	@name getSong
+			*	@desc Fetches information about a particulary query from the back-end CGI program (which prints JSON values).
+			*	@param query A string containing the query to pass to the CGI program.
+			**/
+			function getSongData(query)
+			{
+			  $.getJSON("/cgi-bin/gsd", {sname: query}, function(data)
+			    {
+			      /* Check for errors */
+			      if (data.error) // An error occurred
+			      {
+				console.log(data.error); // Log the error
+				alert(data.error); // Let the user know what the error was
+			      }
+			      
+			      else // No errors
+			      {
+				if (data.length == 1) // Only 1 result
+				{
+				  console.log("1 match found: %o", data[0]);
+				  
+				  /* Display the information on the song to the user */
+				}
+				
+				else // Multiple results
+				{
+				  console.log("Multiple matches found: %a", data);
+				}
+			      }
+			    }
+			  );
+			}
+			
+			/**
+			*	@name sendKey
+			*	@desc Determines whether the given key code is one which necessitates a request to the serve (i.e. user pressed enter or alphanumberic)
+			**/
+			function isSendKey(keyCode)
+			{
+			  // Source: http://www.cambiaresearch.com/articles/15/javascript-char-codes-key-codes
+			  
+			  if (keyCode > 46 && keyCode <= 90 /* Alphanumeric range */ || keyCode >= 96 && keyCode <= 111 /* Numpad and arith ops */ || keyCode >= 186 && keyCode <= 222 /* Other special chars */ || keyCode == 13 /* Enter */)
+			  {
+			    return true; // Valid key, can send request to server
+			  }
+			  
+			  else
+			  {
+			    return false; // Invalid key, can't send request to server
+			  }
+			}
+			
+			/* Equivalent of main() */
+			$(document).ready(function() /* --- this is the equivalent of main */
+			  {
+			    $("input").keyup(function(e)
+			      {
+				if (e.defaultPrevented)
+				{
+				  return; // Do nothing if key was already handled
+				}
+				
+				/* Check if this is a key which necessitates sending a request */
+				console.log("isSendKey(%d) = %s", e.keyCode, isSendKey(e.keyCode));
+				
+				if (isSendKey(e.keyCode)) // Only make a request if the key is one which necessitates it
+				{
+				  getSongData($(this).val()); // Fetch song data using the query entered by the user
+				}
+			      }
+			    ); // Add the event handler to the input box
+			  }
+			); // Bind event handlers to run as soon as the document is ready
+		</script>
+	</head>
+	<body>
+	  Enter a song title to fetch data about it: <input type="text" id="sname" />
+	  <div>
+	  </div>
+	</body>
+</html>
