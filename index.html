@@ -6,13 +6,14 @@
 		<script type="application/javascript" src="jquery-2.1.4.min.js"></script> <!-- jQuery -->
 		<script type="application/javascript">
 			/**
-			*	@name getSong
+			*	@name getSongData
 			*	@desc Fetches information about a particulary query from the back-end CGI program (which prints JSON values).
 			*	@param query A string containing the query to pass to the CGI program.
 			**/
 			function getSongData(query)
 			{
-			  $.getJSON("/cgi-bin/gsd", {sname: query}, function(data)
+			  $("div").html(""); // Clear the div
+			  $.getJSON("/cgi-bin/gsd", {sname: query}, function(data) // Query the server and get the data
 			    {
 			      /* Check for errors */
 			      if (data.error) // An error occurred
@@ -27,12 +28,37 @@
 				{
 				  console.log("1 match found: %o", data[0]);
 				  
+				  /* Display the song name and artist */
+				  $("div").html("<b>" + data[0].title + " - " + data[0].artist + "</b><br />");
+				  
+				  /* Display the lyrics */
+				  sLines = data[0]["lyrics"].split("\r\n"); // Split the lyrics into lines
+				  console.log("Lines in song: %a", sLines);
+				  
+				  for (lineNo in sLines) // Loop through the lines in the song
+				  {
+				    if (sLines[lineNo] == "") // Empty string, line break
+				    {
+				      $("div").append("<br />"); // Add a line break
+				    }
+				    
+				    else // Not empty, display it
+				    {
+				      $("div").append(sLines[lineNo] + "<br />");
+				    }
+				  }
+				  
 				  /* Display the information on the song to the user */
 				}
 				
-				else // Multiple results
+				else if (data.length > 1) // Multiple results
 				{
 				  console.log("Multiple matches found: %a", data);
+				}
+				
+				else // No match
+				{
+				  console.log("No match for query \"%s\"", query);
 				}
 			      }
 			    }
