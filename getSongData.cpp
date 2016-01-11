@@ -55,9 +55,17 @@ int main(int argc, char* argv[])
 	  std::stringstream datprep; // The stringstream used to build the LIKE q's datauery
 	  
 	  /* JSON vars */
-	  Json::Value *resArr = new Json::Value(Json::arrayValue); // The JSON array object which will hold the JSON objects representing query results
-	  Json::Value *curObj; // Holds the object currently being created
+	  Json::Value resArr(Json::arrayValue); // The JSON array object which will hold the JSON objects representing query results
+	  Json::Value curObj(Json::objectValue); // Holds the object currently being created
 	  std::string ind; // Array index
+
+	  /* Check if the query is blank */
+
+	  if (songName == "") // The query is blank
+	  {
+	    std::cout << "Content-Type: application/json\r\n\r\n" << "{\"error\": \"No query received!\"}" << std::endl; // Print a JSON error message
+	    std::exit(1); // Exit with status indicating problem
+	  }
 	  
 	  /** Query the database with the song name to get information about the song **/
 	  
@@ -79,23 +87,27 @@ int main(int argc, char* argv[])
 	    //std::cout << pres->getInt(1) << std::endl; // DEBUGGING: Print ID 
 	    
 	    /* Create the object representing the current row */
-	    curObj = new Json::Value(Json::objectValue); // Create a JSON object;
-	    curObj->append("test");
+	    curObj["id"] = pres->getInt(1); // Store the song's ID
+	    curObj["title"] = pres->getString(2).asStdString(); // Store the song's name (need to convert SQLstring to standard string first)
+	    curObj["artistType"] = pres->getString(3).asStdString(); // Store the artist type as a standard string
+	    curObj["artist"] = pres->getString(4).asStdString(); // Store the artist's name as a standard string
+	    curObj["artistInfo"] = pres->getString(5).asStdString(); // Store the artist's information as a standard string
+	    curObj["lyrics"] = pres->getString(6).asStdString(); // Store the artist's lyrics as a standard string
 	    
 	    /* Add the object to the JSON array */
-	    resArr->append(curObj);
+	    resArr.append(curObj);
 	  }
 	  
 	  /* Debugging: print array */
-	  std::cout << *resArr << "\r\n\r\n" << std::endl;
+	  std::cout << resArr << "\r\n\r\n" << std::endl;
 	  
 	  /* Cleanup */
-	  for (int i = 0; i < resArr->size(); i++) // Loop through the vector
+	  for (int i = 0; i < resArr.size(); i++) // Loop through the vector
 	  {
 	    delete &resArr[i];
 	  }
 	  
-	  delete resArr; // Delete the results array
+	  delete &resArr; // Delete the results array
 	  delete pres; // Delete the result set
 	  delete ppstmt; // Delete the prepared statement
 	  delete pconn; // Free the connection
