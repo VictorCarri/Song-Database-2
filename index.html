@@ -3,6 +3,17 @@
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 		<title>CGI Test</title>
+		<style type="text/css">
+		  div
+		  {
+		    border-bottom: solid;
+		  }
+		  
+		  .bold /* Bold text */
+		  {
+		    font-weight: 900;
+		  }
+		</style>
 		<script type="application/javascript" src="jquery-2.1.4.min.js"></script> <!-- jQuery -->
 		<script type="application/javascript">
 			/**
@@ -12,7 +23,8 @@
 			**/
 			function getSongData(query)
 			{
-			  $("div").html(""); // Clear the div
+			  $("div").html(""); // Clear the divs
+			  
 			  $.getJSON("/cgi-bin/gsd", {sname: query}, function(data) // Query the server and get the data
 			    {
 			      /* Check for errors */
@@ -26,29 +38,62 @@
 			      {
 				if (data.length == 1) // Only 1 result
 				{
-				  console.log("1 match found: %o", data[0]);
+				  song = data[0]; // Ease of use
+				  
+				  console.log("1 match found: %o", song);
 				  
 				  /* Display the song name and artist */
-				  $("div").html("<b>" + data[0].title + " - " + data[0].artist + "</b><br />");
+				  $("div#metadata").html("<span class=\"bold\">" + song.title + " - " + song.artist + "&nbsp;&nbsp;&#40;" + song.artistType + ", " + song.year + "&#41;</span><br />");
 				  
 				  /* Display the lyrics */
-				  sLines = data[0]["lyrics"].split("\r\n"); // Split the lyrics into lines
+				  sLines = song.lyrics.split("\r\n"); // Split the lyrics into lines
 				  console.log("Lines in song: %a", sLines);
 				  
 				  for (lineNo in sLines) // Loop through the lines in the song
 				  {
 				    if (sLines[lineNo] == "") // Empty string, line break
 				    {
-				      $("div").append("<br />"); // Add a line break
+				      $("div#lyrics").append("<br />"); // Add a line break
 				    }
 				    
 				    else // Not empty, display it
 				    {
-				      $("div").append(sLines[lineNo] + "<br />");
+				      $("div#lyrics").append(sLines[lineNo] + "<br />");
 				    }
 				  }
 				  
-				  /* Display the information on the song to the user */
+				  
+				  /* Parse and display the media */
+				  mediaParams = song.media.split(","); // Split the media information into its parameters
+				  console.log(mediaParams); // DEBUGGING
+				  
+				  switch (mediaParams[0]) // Check what the media type is
+				  {
+				    case "video": // A video
+				    {
+					switch (mediaParams[1]) // Check what the embed type is
+					{
+					  case "iframe": // Iframe HTML code
+					  {
+					      $("div#media").html(mediaParams[2]); // Just insert it into the div
+					  }
+					  
+					  default: // Invalid
+					  {
+					    console.log("Error: invalid embed type \"%s\" found", mediaParams[1]);
+					    break;
+					  }
+					}
+					
+					break;
+				    }
+				    
+				    default: // Error
+				    {
+					console.log("Error: invalid media type \"%s\" found", mediaParams[0]);
+					break;
+				    }
+				  }
 				}
 				
 				else if (data.length > 1) // Multiple results
@@ -109,7 +154,10 @@
 	</head>
 	<body>
 	  Enter a song title to fetch data about it: <input type="text" id="sname" />
-	  <div>
+	  <div id="metadata"> <!-- Title, artist name, artist type, and lyrics -->
+	  </div>
+	  <div id="media"></div>  <!-- Media for song: [video:[iframe:$iframeCode|embed:$HTML5VidURL]|audio: [local:$localHTMLAudURL|] -->
+	  <div id="lyrics"></div>
 	  </div>
 	</body>
 </html>
