@@ -89,10 +89,13 @@ int main(int argc, char* argv[])
 	    /* Create the object representing the current row */
 	    curObj["id"] = pres->getInt(1); // Store the song's ID
 	    curObj["title"] = pres->getString(2).asStdString(); // Store the song's name (need to convert SQLstring to standard string first)
-	    curObj["artistType"] = pres->getString(3).asStdString(); // Store the artist type as a standard string
-	    curObj["artist"] = pres->getString(4).asStdString(); // Store the artist's name as a standard string
-	    curObj["artistInfo"] = pres->getString(5).asStdString(); // Store the artist's information as a standard string
-	    curObj["lyrics"] = pres->getString(6).asStdString(); // Store the artist's lyrics as a standard string
+	    curObj["songInfo"] = pres->getString(3).asStdString();
+	    curObj["artistType"] = pres->getString(4).asStdString(); // Store the artist type as a standard string
+	    curObj["artist"] = pres->getString(5).asStdString(); // Store the artist's name as a standard string
+	    curObj["artistInfo"] = pres->getString(6).asStdString(); // Store the artist's information as a standard string
+	    curObj["lyrics"] = pres->getString(7).asStdString(); // Store the artist's lyrics as a standard string
+	    curObj["media"] = pres->getString(8).asStdString(); // Store the media displayed to the user as a standard C++ string
+	    curObj["year"] = pres->getInt(9); // Store the year of release as an integer
 	    
 	    /* Add the object to the JSON array */
 	    resArr.append(curObj);
