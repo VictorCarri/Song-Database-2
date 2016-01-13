@@ -14,7 +14,7 @@
 		    font-weight: 900;
 		  }
 		  
-		  iframe /* Wikipedia iframe */
+		  #wikiIf /* Wikipedia iframe */
 		  {
 		    width: 100%;
 		    height: 100%;
@@ -115,7 +115,7 @@
 					case "Wikipedia": // Wikipedia link
 					{
 					  alert("In songInfo->link->Wikipedia");
-					  $("div#sInfo").html("<iframe src=\"" + songInfo[2] + "\"></iframe>"); // Please forgive my use of an iframe...
+					  $("div#sInfo").html("<iframe id=\"wikiIf\" src=\"" + songInfo[2] + "\"></iframe>"); // Please forgive my use of an iframe...
 					  console.log("$(div#sInfo) =");
 					  console.log($("div#sInfo"));
 					  break;
