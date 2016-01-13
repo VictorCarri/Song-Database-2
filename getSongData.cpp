@@ -52,7 +52,7 @@ int main(int argc, char* argv[])
 	  sql::Connection *pconn; // Pointer to MySQL connection object
 	  sql::PreparedStatement *ppstmt; // Pointer to MySQL statement object;
 	  sql::ResultSet *pres; // Pointer to MySQL resultset object
-	  std::stringstream datprep; // The stringstream used to build the LIKE q's datauery
+	  std::stringstream datprep; // The stringstream used to build the LIKE query's data
 	  
 	  /* JSON vars */
 	  Json::Value resArr(Json::arrayValue); // The JSON array object which will hold the JSON objects representing query results
@@ -63,7 +63,8 @@ int main(int argc, char* argv[])
 
 	  if (songName == "") // The query is blank
 	  {
-	    std::cout << "Content-Type: application/json\r\n\r\n" << "{\"error\": \"No query received!\"}" << std::endl; // Print a JSON error message
+	    curObj["error"] = "No query received";
+	    std::cout << "Content-Type: application/json\r\n\r\n" << curObj<< std::endl; // Print a JSON error message
 	    std::exit(1); // Exit with status indicating problem
 	  }
 	  
@@ -89,10 +90,13 @@ int main(int argc, char* argv[])
 	    /* Create the object representing the current row */
 	    curObj["id"] = pres->getInt(1); // Store the song's ID
 	    curObj["title"] = pres->getString(2).asStdString(); // Store the song's name (need to convert SQLstring to standard string first)
-	    curObj["artistType"] = pres->getString(3).asStdString(); // Store the artist type as a standard string
-	    curObj["artist"] = pres->getString(4).asStdString(); // Store the artist's name as a standard string
-	    curObj["artistInfo"] = pres->getString(5).asStdString(); // Store the artist's information as a standard string
-	    curObj["lyrics"] = pres->getString(6).asStdString(); // Store the artist's lyrics as a standard string
+	    curObj["songInfo"] = pres->getString(3).asStdString();
+	    curObj["artistType"] = pres->getString(4).asStdString(); // Store the artist type as a standard string
+	    curObj["artist"] = pres->getString(5).asStdString(); // Store the artist's name as a standard string
+	    curObj["artistInfo"] = pres->getString(6).asStdString(); // Store the artist's information as a standard string
+	    curObj["lyrics"] = pres->getString(7).asStdString(); // Store the artist's lyrics as a standard string
+	    curObj["media"] = pres->getString(8).asStdString(); // Store the media displayed to the user as a standard C++ string
+	    curObj["year"] = pres->getInt(9); // Store the year of release as an integer
 	    
 	    /* Add the object to the JSON array */
 	    resArr.append(curObj);
