@@ -72,7 +72,7 @@ int main(int argc, char* argv[])
 	  
 	  /* Create a connection */
 	  pdriver = get_driver_instance(); // Get an instance of a driver
-	  pconn = pdriver->connect("tcp://127.0.0.1:3306", "root", "1124mania"); // Connect to MySQL
+	  pconn = pdriver->connect("tcp://127.0.0.1:3306", "user", "password"); // Connect to MySQL
 	  pconn->setSchema("personal"); // Select the personal database
 	  
 	  /* Create and execute the statement */
