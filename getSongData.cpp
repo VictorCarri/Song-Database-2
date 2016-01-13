@@ -63,7 +63,8 @@ int main(int argc, char* argv[])
 
 	  if (songName == "") // The query is blank
 	  {
-	    std::cout << "Content-Type: application/json\r\n\r\n" << "{\"error\": \"No query received!\"}" << std::endl; // Print a JSON error message
+	    curObj["error"] = "No query received";
+	    std::cout << "Content-Type: application/json\r\n\r\n" << curObj<< std::endl; // Print a JSON error message
 	    std::exit(1); // Exit with status indicating problem
 	  }
 	  

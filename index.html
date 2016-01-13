@@ -2,7 +2,7 @@
 <html>
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-		<title>CGI Test</title>
+		<title>Song Database 2</title>
 		<style type="text/css">
 		  div
 		  {
@@ -12,6 +12,12 @@
 		  .bold /* Bold text */
 		  {
 		    font-weight: 900;
+		  }
+		  
+		  iframe /* Wikipedia iframe */
+		  {
+		    width: 100%;
+		    height: 100%;
 		  }
 		</style>
 		<script type="application/javascript" src="jquery-2.1.4.min.js"></script> <!-- jQuery -->
@@ -23,7 +29,7 @@
 			**/
 			function getSongData(query)
 			{
-			  $("div").html(""); // Clear the divs
+			  $("div.clearable").html(""); // Clear the divs
 			  
 			  $.getJSON("/cgi-bin/gsd", {sname: query}, function(data) // Query the server and get the data
 			    {
@@ -76,6 +82,7 @@
 					  case "iframe": // Iframe HTML code
 					  {
 					      $("div#media").html(mediaParams[2]); // Just insert it into the div
+					      break;
 					  }
 					  
 					  default: // Invalid
@@ -92,6 +99,41 @@
 				    {
 					console.log("Error: invalid media type \"%s\" found", mediaParams[0]);
 					break;
+				    }
+				  }
+				  
+				  /* Parse and display the song information */
+				  songInfo = song.songInfo.split(","); // Split the song information into parameters
+				  console.log("Song info = %o", songInfo);
+				  
+				  switch (songInfo[0]) // Type
+				  {
+				    case "link": // Link to external website
+				    {
+				      switch (songInfo[1]) // Type of external link
+				      {
+					case "Wikipedia": // Wikipedia link
+					{
+					  alert("In songInfo->link->Wikipedia");
+					  $("div#sInfo").html("<iframe src=\"" + songInfo[2] + "\"></iframe>"); // Please forgive my use of an iframe...
+					  console.log("$(div#sInfo) =");
+					  console.log($("div#sInfo"));
+					  break;
+					}
+					
+					default: // Invalid
+					{
+					  console.log("Invalid type of external link: \"%s\"", songInfo[1]);
+					  break;
+					}
+				      }
+				      
+				      break;
+				    }
+				    
+				    default: // Invalid
+				    {
+					console.log("Invalid song info type: \"%s\"", songInfo[0]);
 				    }
 				  }
 				}
@@ -154,10 +196,16 @@
 	</head>
 	<body>
 	  Enter a song title to fetch data about it: <input type="text" id="sname" />
-	  <div id="metadata"> <!-- Title, artist name, artist type, and lyrics -->
+	  <div id="metadata" class="clearable"> <!-- Title, artist name, artist type, and lyrics -->
 	  </div>
-	  <div id="media"></div>  <!-- Media for song: [video:[iframe:$iframeCode|embed:$HTML5VidURL]|audio: [local:$localHTMLAudURL|] -->
-	  <div id="lyrics"></div>
+	  <div id="media" class="clearable"></div>  <!-- Media for song: [video:[iframe:$iframeCode|embed:$HTML5VidURL]|audio: [local:$localHTMLAudURL|] -->
+	  <div id="info"> <!-- Holds information about the song (artist info & song info -->
+	    <div id="sInfo" class="clearable"> <!-- Holds information about the song -->
+	    </div>
+	    <div id="aInfo" class="clearable"> <!-- Holds information about the artist -->
+	    </div>
+	  </div> 
+	  <div id="lyrics" class="clearable"></div>
 	  </div>
 	</body>
 </html>
